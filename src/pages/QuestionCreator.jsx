@@ -11,7 +11,7 @@ const QuestionCreator = () => {
   });
   const [message, setMessage] = useState("");
 
-  // Fetch all exams to select from
+ 
   useEffect(() => {
     const fetchExams = async () => {
       try {
@@ -24,19 +24,19 @@ const QuestionCreator = () => {
     fetchExams();
   }, []);
 
-  // Handle text/answer change
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle option change
+ 
   const handleOptionChange = (index, value) => {
     const updatedOptions = [...formData.options];
     updatedOptions[index] = value;
     setFormData({ ...formData, options: updatedOptions });
   };
 
-  // Handle form submit
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("📦 Sending data to backend:", formData);
@@ -83,7 +83,7 @@ const QuestionCreator = () => {
           </select>
         </div>
 
-        {/* Question Text */}
+      
         <div>
           <label className="block text-gray-700">Question:</label>
           <input
@@ -96,7 +96,7 @@ const QuestionCreator = () => {
           />
         </div>
 
-        {/* Options */}
+     
         {formData.options.map((opt, idx) => (
           <div key={idx}>
             <label className="block text-gray-700">Option {idx + 1}:</label>
@@ -110,7 +110,7 @@ const QuestionCreator = () => {
           </div>
         ))}
 
-        {/* Correct Answer */}
+      
         <div>
           <label className="block text-gray-700">Correct Answer:</label>
           <input

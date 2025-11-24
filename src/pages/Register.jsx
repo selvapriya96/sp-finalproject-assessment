@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import API from "../api/axios.js";
-import { useNavigate } from "react-router-dom"; // 👈 ADD THIS
-
+import { useNavigate } from "react-router-dom";
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 
-  const navigate = useNavigate(); // 👈 ADD THIS
+  const navigate = useNavigate(); 
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,7 +14,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await API.post("/api/auth/register", form);
+      const res = await API.post("/auth/register", form);
       setMessage(res.data.message || "Registered successfully!");
 
       alert("🎉 Registration successful! Please login now.");
