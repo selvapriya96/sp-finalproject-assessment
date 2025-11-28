@@ -14,6 +14,7 @@ import Result from "./pages/Result.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute.jsx"; // ✅ Correct folder
 import { logout } from "./utils/auth.js"; // ✅ Add this file (Step below)
 
+
 export default function App() {
   const location = useLocation();
   const token = localStorage.getItem("token");
@@ -64,59 +65,68 @@ export default function App() {
 
       <main className="p-6">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+  <Route path="/" element={<Home />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
 
-          {/* ✅ Admin Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/create-exam"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <ExamCreator />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-question"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <QuestionCreator />
-              </ProtectedRoute>
-            }
-          />
+  {/* Admin Routes */}
+  <Route
+    path="/dashboard"
+    element={
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <Dashboard />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/create-exam"
+    element={
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <ExamCreator />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/add-question"
+    element={
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <QuestionCreator />
+      </ProtectedRoute>
+    }
+  />
 
-          {/* ✅ Student Routes */}
-          <Route
-            path="/exams"
-            element={
-              <ProtectedRoute allowedRoles={["student", "admin"]}>
-                <ExamList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/exam/:id"
-            element={
-              <ProtectedRoute allowedRoles={["student", "admin"]}>
-                <TakeExam />
-              </ProtectedRoute>
-            }
-          />
+  {/* Student & Admin */}
+  <Route
+    path="/exams"
+    element={
+      <ProtectedRoute allowedRoles={["student", "admin"]}>
+        <ExamList />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/exam/:id"
+    element={
+      <ProtectedRoute allowedRoles={["student", "admin"]}>
+        <TakeExam />
+      </ProtectedRoute>
+    }
+  />
 
-          {/* ✅ Common Routes */}
-          <Route path="/exam/:examId" element={<ExamDetails />} />
-          <Route path="/result" element={<ResultPage />} />
-          <Route path="/result-summary" element={<Result />} />
-        </Routes>
+  {/* 🔹 FIXED Exam Details Route */}
+  <Route
+    path="/exam-details/:examId"
+    element={
+      <ProtectedRoute allowedRoles={["student", "admin"]}>
+        <ExamDetails />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route path="/result" element={<ResultPage />} />
+  <Route path="/result-summary" element={<Result />} />
+</Routes>
+
       </main>
     </div>
   );

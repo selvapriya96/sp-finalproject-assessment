@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import API from "./api/axios.js"; 
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,13 +18,12 @@ export default function Login() {
 
       const { token, user } = res.data;
       localStorage.setItem("token", token);
-      localStorage.setItem("userRole", user.role); // ✅ role stored here
+      localStorage.setItem("userRole", user.role);
       localStorage.setItem("userName", user.name);
-
-      alert(`Welcome ${user.name} (${user.role})`);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirect based on role
+      alert(`Welcome ${user.name} (${user.role})`);
+
       if (user.role === "admin") navigate("/dashboard");
       else navigate("/exams");
     } catch (err) {
