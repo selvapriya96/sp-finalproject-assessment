@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios.js"; // use your axios instance with Render URL
 
 const ExamPage = () => {
   const { examId } = useParams();
@@ -11,34 +11,43 @@ const ExamPage = () => {
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch exam questions
+  // Fetch exam details and questions
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchExam = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/questions/${examId}`);
-        setQuestions(res.data);
+        // Fetch exam details (for duration)
+        const examRes = await API.get(`/exams/${examId}`);
+        if (!examRes.data) {
+          console.error("Exam not found");
+          setLoading(false);
+          return;
+        }
+        setTimeLeft(examRes.data.duration * 60);
 
-        // get exam details for timer
-        const examRes = await axios.get(`http://localhost:5000/api/exams`);
-        const currentExam = examRes.data.find((e) => e._id === examId);
-        if (currentExam) setTimeLeft(currentExam.duration * 60);
+        // Fetch questions for this exam
+        const questionsRes = await API.get(`/questions/${examId}`);
+        setQuestions(questionsRes.data || []);
       } catch (err) {
-        console.error("Failed to fetch questions:", err);
+        console.error("Failed to fetch exam/questions:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchQuestions();
+
+    fetchExam();
   }, [examId]);
 
   // Timer countdown
   useEffect(() => {
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0 && questions.length > 0) {
       handleSubmit();
       return;
     }
     const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, questions]);
 
   const handleAnswer = (questionId, option) => {
     setAnswers({ ...answers, [questionId]: option });
@@ -59,7 +68,11 @@ const ExamPage = () => {
     navigate("/result", { state: { score, total: questions.length } });
   };
 
-  // ✅ Review Mode Page
+  // Loading or empty state
+  if (loading) return <p className="p-8">Loading exam...</p>;
+  if (!questions.length) return <p className="p-8">No questions available for this exam.</p>;
+
+  // Review Mode
   if (isReviewMode) {
     return (
       <div className="p-8">
@@ -102,9 +115,7 @@ const ExamPage = () => {
     );
   }
 
-  // ✅ Normal Exam View
-  if (questions.length === 0) return <p>Loading questions...</p>;
-
+  // Normal Exam View
   const q = questions[current];
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
