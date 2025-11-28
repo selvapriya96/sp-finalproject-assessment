@@ -1,101 +1,67 @@
-import { useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import API from "../api/axios.js";
 
-const ExamCreator = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    subject: "",
-    date: "",
-    duration: "",
-  });
+const ExamDetails = () => {
+  const { examId } = useParams();
+  const [exam, setExam] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [message, setMessage] = useState("");
+  // Fetch exam + its questions
+  useEffect(() => {
+    const fetchExamData = async () => {
+      try {
+        // Fetch exam details
+        const examRes = await API.get(`/exams/${examId}`);
+        setExam(examRes.data);
 
-  // Handle input changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+        // Fetch questions for this exam
+        const questionRes = await API.get(`/questions/${examId}`);
+        setQuestions(questionRes.data || []);
+      } catch (err) {
+        console.error("Failed to fetch exam details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:5000/api/exams", formData);
-      setMessage("✅ Exam created successfully!");
-      console.log(res.data);
-      setFormData({ title: "", subject: "", date: "", duration: "" });
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Failed to create exam.");
-    }
-  };
+    fetchExamData();
+  }, [examId]);
+
+  if (loading) return <p className="p-8 text-gray-500">Loading exam...</p>;
+  if (!exam) return <p className="p-8 text-red-500">Exam not found.</p>;
 
   return (
-    <div className="max-w-lg mx-auto mt-12 p-8 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-6 text-center">Create New Exam</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-4">{exam.title}</h1>
+      <p className="text-gray-700 mb-6">
+        Subject: {exam.subject} <br />
+        Duration: {exam.duration} mins <br />
+        Date: {new Date(exam.date).toLocaleString()}
+      </p>
 
-      {message && (
-        <p className="mb-4 text-center font-medium text-green-600">{message}</p>
+      <h2 className="text-2xl font-semibold mb-3">Questions:</h2>
+      {questions.length === 0 ? (
+        <p className="text-gray-500">No questions available for this exam.</p>
+      ) : (
+        <ul className="space-y-4">
+          {questions.map((q, i) => (
+            <li key={q._id} className="border p-4 rounded-lg bg-gray-50 shadow">
+              <p className="font-medium">
+                {i + 1}. {q.questionText}
+              </p>
+              <ul className="list-disc ml-6 mt-2">
+                {q.options.map((opt, idx) => (
+                  <li key={idx}>{opt}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
       )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Title:</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Subject:</label>
-          <input
-            type="text"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Date:</label>
-          <input
-            type="datetime-local"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Duration (minutes):</label>
-          <input
-            type="number"
-            name="duration"
-            value={formData.duration}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition"
-        >
-          Create Exam
-        </button>
-      </form>
     </div>
   );
 };
 
-export default ExamCreator;
+export default ExamDetails;
