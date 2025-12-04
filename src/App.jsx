@@ -105,7 +105,7 @@ export default function App() {
     }
   />
   <Route
-    path="/exam/:id"
+      path="/exam/:examId"
     element={
       <ProtectedRoute allowedRoles={["student", "admin"]}>
         <TakeExam />
