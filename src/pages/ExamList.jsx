@@ -63,6 +63,7 @@ const ExamList = () => {
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => {
+                  console.log("Selected Exam ID:", selectedExam._id);
                   navigate(`/exam/${selectedExam._id}`);
                   setSelectedExam(null);
                 }}
