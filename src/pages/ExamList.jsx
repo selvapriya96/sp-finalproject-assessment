@@ -1,21 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import API from "../api/axios.js";
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/exams");
-        setExams(res.data);
+        const res = await API.get("/exams");
+        setExams(res.data || []);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch exams:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchExams();
   }, []);
+
+  if (loading) {
+    return <p className="p-8 text-gray-500">Loading exams...</p>;
+  }
+
+  if (!exams.length) {
+    return <p className="p-8 text-gray-500">No exams available.</p>;
+  }
 
   return (
     <div className="p-8">
@@ -26,9 +37,14 @@ const ExamList = () => {
             key={exam._id}
             className="border p-4 rounded-lg shadow hover:shadow-lg transition"
           >
-            <h2 className="text-xl font-semibold">{exam.title}</h2>
-            <p>Duration: {exam.duration} minutes</p>
-            <p>Date: {new Date(exam.date).toLocaleString()}</p>
+            <h2 className="text-xl font-semibold">{exam?.title || "Untitled Exam"}</h2>
+            <p>Duration: {exam?.duration || 0} minutes</p>
+            <p>
+              Date:{" "}
+              {exam?.date
+                ? new Date(exam.date).toLocaleDateString() + " " + new Date(exam.date).toLocaleTimeString()
+                : "TBA"}
+            </p>
             <Link
               to={`/exam/${exam._id}`}
               className="text-blue-600 font-semibold hover:underline"

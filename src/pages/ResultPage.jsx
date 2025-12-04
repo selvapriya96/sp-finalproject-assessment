@@ -20,12 +20,16 @@ const ResultPage = () => {
     );
   }
 
-  const { score, total } = state;
-  const percentage = ((score / total) * 100).toFixed(2);
+  const { score, total, percentage, examName } = state;
 
   return (
     <div className="max-w-xl mx-auto mt-20 p-8 bg-white shadow-lg rounded-lg text-center">
       <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Exam Completed!</h1>
+      {examName && (
+        <p className="text-lg mb-2">
+          <strong>Exam:</strong> {examName}
+        </p>
+      )}
       <p className="text-xl mb-2">
         You scored <span className="font-semibold">{score}</span> out of{" "}
         <span className="font-semibold">{total}</span>
@@ -45,12 +49,14 @@ const ResultPage = () => {
         >
           🏠 Go Home
         </button>
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-gray-600 text-white px-5 py-2 rounded hover:bg-gray-700"
-        >
-          🔁 Retake Exam
-        </button>
+        {state.answers && state.questions && (
+          <button
+            onClick={() => navigate("/result-review", { state })}
+            className="bg-yellow-500 text-white px-5 py-2 rounded hover:bg-yellow-600"
+          >
+            📝 Review Answers
+          </button>
+        )}
       </div>
     </div>
   );

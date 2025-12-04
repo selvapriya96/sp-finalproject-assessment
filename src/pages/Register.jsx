@@ -14,8 +14,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Form Data Sent:", form);
-
+  
       const res = await API.post("/auth/register", form);
       setMessage(res.data.message || "Registered successfully!");
 

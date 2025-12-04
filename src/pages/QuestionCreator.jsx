@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api/axios.js"; 
 
 const QuestionCreator = () => {
   const [exams, setExams] = useState([]);
@@ -11,12 +11,12 @@ const QuestionCreator = () => {
   });
   const [message, setMessage] = useState("");
 
- 
+  // Fetch all exams
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/exams");
-        setExams(res.data);
+        const res = await API.get("/exams");
+        setExams(res.data || []);
       } catch (err) {
         console.error("Failed to fetch exams:", err);
       }
@@ -24,26 +24,22 @@ const QuestionCreator = () => {
     fetchExams();
   }, []);
 
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- 
   const handleOptionChange = (index, value) => {
     const updatedOptions = [...formData.options];
     updatedOptions[index] = value;
     setFormData({ ...formData, options: updatedOptions });
   };
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("📦 Sending data to backend:", formData);
 
     try {
-        
-      await axios.post("http://localhost:5000/api/questions", formData);
+      await API.post("/questions", formData);
       setMessage("✅ Question added successfully!");
       setFormData({
         examId: "",
@@ -52,7 +48,7 @@ const QuestionCreator = () => {
         correctAnswer: "",
       });
     } catch (err) {
-      console.error(err);
+      console.error("Failed to add question:", err);
       setMessage("❌ Failed to add question.");
     }
   };
@@ -83,20 +79,20 @@ const QuestionCreator = () => {
           </select>
         </div>
 
-      
+        {/* Question Text */}
         <div>
           <label className="block text-gray-700">Question:</label>
           <input
             type="text"
             name="questionText"
-            value={formData.text}
+            value={formData.questionText} // fixed typo here
             onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
         </div>
 
-     
+        {/* Options */}
         {formData.options.map((opt, idx) => (
           <div key={idx}>
             <label className="block text-gray-700">Option {idx + 1}:</label>
@@ -110,7 +106,7 @@ const QuestionCreator = () => {
           </div>
         ))}
 
-      
+        {/* Correct Answer */}
         <div>
           <label className="block text-gray-700">Correct Answer:</label>
           <input
