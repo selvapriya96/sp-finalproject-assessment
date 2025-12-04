@@ -21,7 +21,7 @@ export default function App() {
   const role = localStorage.getItem("userRole");
   const userName = JSON.parse(localStorage.getItem("user"))?.name || "";
 
-  // Hide header on login/register pages
+  
   const hideHeader = ["/login", "/register"].includes(location.pathname);
 
   return (
@@ -95,7 +95,7 @@ export default function App() {
     }
   />
 
-  {/* Student & Admin */}
+
   <Route
     path="/exams"
     element={
@@ -113,7 +113,7 @@ export default function App() {
     }
   />
 
-  {/* 🔹 FIXED Exam Details Route */}
+  
   <Route
     path="/exam-details/:examId"
     element={
