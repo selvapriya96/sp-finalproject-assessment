@@ -4,86 +4,65 @@ const Result = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  if (!state || !state.questions || !state.answers) {
+  if (!state) {
     return (
-      <div className="text-center mt-10 text-gray-600">
+      <p className="text-center mt-10 text-gray-600">
         No result data found.
-        <br />
-        <button
-          onClick={() => navigate("/")}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Back to Dashboard
-        </button>
-      </div>
+      </p>
     );
   }
 
-  const { answers, questions, userName, examName, score, total, percentage } = state;
+  const { score, total, percentage, answers, questions, examName, userName } = state;
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 p-8 bg-white shadow-xl rounded-lg">
-      <h2 className="text-3xl font-bold text-green-600 mb-4 text-center">🎯 Exam Result</h2>
+    <div className="max-w-xl mx-auto mt-20 p-8 bg-white shadow-lg rounded-lg text-center">
+      <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Exam Completed!</h1>
 
-      <p className="text-xl text-center text-gray-700 mb-8">
-        {userName && (
-          <>
-            <strong>Candidate:</strong> {userName} <br />
-          </>
-        )}
-        {examName && (
-          <>
-            <strong>Exam:</strong> {examName} <br />
-          </>
-        )}
-        <strong>Score:</strong> {score} / {total} ({percentage}%)
+      {examName && (
+        <p className="text-lg mb-2">
+          <strong>Exam:</strong> {examName}
+        </p>
+      )}
+
+      {userName && (
+        <p className="text-lg mb-2">
+          <strong>Student:</strong> {userName}
+        </p>
+      )}
+
+      <p className="text-xl mb-2">
+        You scored <span className="font-semibold">{score}</span> out of{" "}
+        <span className="font-semibold">{total}</span>
       </p>
 
-      <h3 className="text-2xl font-semibold mb-4">🧾 Review Answers</h3>
-      <div className="space-y-6">
-        {questions.map((q, index) => {
-          const userAnswer = answers[index] ?? "Not answered";
-          const isCorrect = userAnswer === q.correctAnswer;
-          return (
-            <div
-              key={index}
-              className={`p-4 rounded-lg border ${
-                isCorrect ? "border-green-400 bg-green-50" : "border-red-400 bg-red-50"
-              }`}
-            >
-              <p className="font-semibold mb-2">
-                Q{index + 1}. {q.questionText}
-              </p>
-              <p>
-                <strong>Your answer:</strong>{" "}
-                <span className={isCorrect ? "text-green-700" : "text-red-700"}>
-                  {userAnswer}
-                </span>
-              </p>
-              {!isCorrect && (
-                <p>
-                  <strong>Correct answer:</strong>{" "}
-                  <span className="text-green-700">{q.correctAnswer}</span>
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <p
+        className={`text-2xl font-bold ${
+          percentage >= 50 ? "text-green-700" : "text-red-600"
+        }`}
+      >
+        {percentage}%
+      </p>
 
-      <div className="text-center mt-8 flex justify-center gap-4">
+      <div className="mt-8 flex justify-center gap-4">
         <button
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
           onClick={() => navigate("/")}
+          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
         >
-          Back to Dashboard
+          🏠 Go Home
         </button>
-        <button
-          className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition"
-          onClick={() => navigate(-1)}
-        >
-          🔁 Retake Exam
-        </button>
+
+        {answers && questions && (
+          <button
+            onClick={() =>
+              navigate("/result-review", {
+                state: { answers, questions, score, total, percentage, examName, userName }
+              })
+            }
+            className="bg-yellow-500 text-white px-5 py-2 rounded hover:bg-yellow-600"
+          >
+            📝 Review Answers
+          </button>
+        )}
       </div>
     </div>
   );

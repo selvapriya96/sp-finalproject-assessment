@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import API from "../api/axios.js"; // use your axios instance with Render URL
-
+import API from "../api/axios.js"; 
 const ExamPage = () => {
   const { examId } = useParams();
   const navigate = useNavigate();
@@ -10,23 +9,25 @@ const ExamPage = () => {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isReviewMode, setIsReviewMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isReviewMode, setIsReviewMode] = useState(false);
+  const [examName, setExamName] = useState("");
 
-  // Fetch exam details and questions
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        // Fetch exam details (for duration)
+       
         const examRes = await API.get(`/exams/${examId}`);
         if (!examRes.data) {
           console.error("Exam not found");
           setLoading(false);
           return;
         }
+
+        setExamName(examRes.data.name || examRes.data.title || "Exam");
         setTimeLeft(examRes.data.duration * 60);
 
-        // Fetch questions for this exam
+        // Fetch questions
         const questionsRes = await API.get(`/questions/${examId}`);
         setQuestions(questionsRes.data || []);
       } catch (err) {
@@ -39,12 +40,13 @@ const ExamPage = () => {
     fetchExam();
   }, [examId]);
 
-  // Timer countdown
+  
   useEffect(() => {
     if (timeLeft <= 0 && questions.length > 0) {
       handleSubmit();
       return;
     }
+
     const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, questions]);
@@ -54,33 +56,52 @@ const ExamPage = () => {
   };
 
   const handleNext = () => {
-    if (current < questions.length - 1) setCurrent(current + 1);
+    if (current < questions.length - 1) {
+      setCurrent(current + 1);
+    }
   };
 
   const handlePrevious = () => {
-    if (current > 0) setCurrent(current - 1);
+    if (current > 0) {
+      setCurrent(current - 1);
+    }
   };
+
 
   const handleSubmit = () => {
     const score = questions.reduce((acc, q) => {
       return acc + (answers[q._id] === q.correctAnswer ? 1 : 0);
     }, 0);
-    navigate("/result", { state: { score, total: questions.length } });
+
+    const total = questions.length;
+    const percentage = Math.round((score / total) * 100);
+
+    navigate("/result", {
+      state: {
+        score,
+        total,
+        percentage,
+        examName,
+        answers,
+        questions,
+      },
+    });
   };
 
-  // Loading or empty state
   if (loading) return <p className="p-8">Loading exam...</p>;
-  if (!questions.length) return <p className="p-8">No questions available for this exam.</p>;
+  if (!questions.length) return <p className="p-8">No questions available.</p>;
 
-  // Review Mode
+ 
   if (isReviewMode) {
     return (
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">Review Your Answers</h1>
+
         <ul className="space-y-4">
           {questions.map((q) => (
             <li key={q._id} className="border p-4 rounded-lg shadow">
               <p className="font-semibold">{q.text}</p>
+
               {q.options.map((opt, i) => (
                 <label key={i} className="block">
                   <input
@@ -104,6 +125,7 @@ const ExamPage = () => {
           >
             Back to Exam
           </button>
+
           <button
             onClick={handleSubmit}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -115,7 +137,7 @@ const ExamPage = () => {
     );
   }
 
-  // Normal Exam View
+
   const q = questions[current];
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -133,6 +155,7 @@ const ExamPage = () => {
 
       <div className="border p-6 rounded-lg shadow-md">
         <p className="text-lg mb-4">{q.text}</p>
+
         {q.options.map((opt, i) => (
           <label key={i} className="block">
             <input
@@ -171,6 +194,7 @@ const ExamPage = () => {
             >
               Review Before Submit
             </button>
+
             <button
               onClick={handleSubmit}
               className="bg-green-600 text-white px-4 py-2 rounded"
