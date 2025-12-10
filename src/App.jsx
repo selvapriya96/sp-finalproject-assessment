@@ -1,133 +1,93 @@
-import React from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import ExamList from "./pages/ExamList.jsx";
-import TakeExam from "./pages/TakeExam.jsx";
-import ExamCreator from "./pages/ExamCreator.jsx";
-import QuestionCreator from "./pages/QuestionCreator.jsx";
-import ExamDetails from "./pages/ExamDetails.jsx";
-import ResultPage from "./pages/ResultPage.jsx";
-import Result from "./pages/Result.jsx";
-import ProtectedRoute from "./pages/ProtectedRoute.jsx"; // ✅ Correct folder
-import { logout } from "./utils/auth.js"; // ✅ Add this file (Step below)
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 
+import Home from "./pages/Home";
 
-export default function App() {
-  const location = useLocation();
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("userRole");
-  const userName = JSON.parse(localStorage.getItem("user"))?.name || "";
+import ExamPage from "./pages/ExamPage";
+import Result from "./pages/Result";
+import ResultReview from "./pages/ResultReview";
+import AdminResults from "./pages/AdminResults";
+import AdminDashboard from "./pages/AdminDashboard";
+import MyResults from "./pages/MyResults";
+import Exams from "./pages/Exam";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import home from "./pages/Home";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
-  
-  const hideHeader = ["/login", "/register"].includes(location.pathname);
-
+function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
-      {!hideHeader && (
-        <header className="bg-blue-700 text-white p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">
-            Online Assessment Platform — Exams Conducted Here!
-          </h1>
-          <nav className="space-x-4">
-            {!token ? (
-              <>
-                <Link to="/login" className="hover:underline">Login</Link>
-                <Link to="/register" className="hover:underline">Register</Link>
-              </>
-            ) : (
-              <>
-                <Link to="/" className="hover:underline">Home</Link>
-                <Link to="/exams" className="hover:underline">Exams</Link>
-                {role === "admin" && (
-                  <Link to="/dashboard" className="hover:underline">Dashboard</Link>
-                )}
-                {token && (
-                  <span className="ml-4 text-sm text-gray-200">
-                    Welcome, <span className="font-semibold">{userName}</span> ({role})
-                  </span>
-                )}
+    <>
+      <Navbar />
 
-                <button
-                  onClick={logout}
-                  className="bg-red-600 px-3 py-1 rounded hover:bg-red-700 ml-2"
-                >
-                  Logout
-                </button>
+      <Routes>
 
-              </>
-            )}
-          </nav>
-        </header>
-      )}
+        
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <main className="p-6">
-        <Routes>
+      
+        <Route
+          path="/exams"
+          element={
+            <ProtectedRoute>
+              <Exams />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/result"
+          element={
+            <ProtectedRoute>
+              <Result />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/exam/:id"
+          element={
+            <ProtectedRoute>
+              <ExamPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-results"
+          element={
+            <ProtectedRoute>
+              <MyResults />
+            </ProtectedRoute>
+          }
+        />
+
+       
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/result-review"
+          element={
+            <ProtectedRoute>
+              <ResultReview />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<p>Page not found</p>} />
   <Route path="/" element={<Home />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/register" element={<Register />} />
-
-  {/* Admin Routes */}
-  <Route
-    path="/dashboard"
-    element={
-      <ProtectedRoute allowedRoles={["admin"]}>
-        <Dashboard />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-    path="/create-exam"
-    element={
-      <ProtectedRoute allowedRoles={["admin"]}>
-        <ExamCreator />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-    path="/add-question"
-    element={
-      <ProtectedRoute allowedRoles={["admin"]}>
-        <QuestionCreator />
-      </ProtectedRoute>
-    }
-  />
-
-
-  <Route
-    path="/exams"
-    element={
-      <ProtectedRoute allowedRoles={["student", "admin"]}>
-        <ExamList />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-      path="/exam/:examId"
-    element={
-      <ProtectedRoute allowedRoles={["student", "admin"]}>
-        <TakeExam />
-      </ProtectedRoute>
-    }
-  />
-
-  
-  <Route
-    path="/exam-details/:examId"
-    element={
-      <ProtectedRoute allowedRoles={["student", "admin"]}>
-        <ExamDetails />
-      </ProtectedRoute>
-    }
-  />
-
-  <Route path="/result" element={<ResultPage />} />
-  <Route path="/result-summary" element={<Result />} />
-</Routes>
-
-      </main>
-    </div>
+        <Route path="/unauthorized" element={<p>You are not allowed here.</p>} />
+      </Routes>
+    </>
   );
 }
+
+export default App;

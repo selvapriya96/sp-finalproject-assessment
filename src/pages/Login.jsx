@@ -2,12 +2,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import API from "../api/axios.js";
- 
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,10 +23,10 @@ export default function Login() {
       localStorage.setItem("userRole", user.role);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("user", JSON.stringify(user));
-
+      login(user);
       alert(`Welcome ${user.name} (${user.role})`);
 
-      if (user.role === "admin") navigate("/dashboard");
+      if (user.role === "admin") navigate("/admin");
       else navigate("/exams");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");

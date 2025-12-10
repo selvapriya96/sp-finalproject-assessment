@@ -1,3 +1,4 @@
+// src/pages/Result.jsx
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Result = () => {
@@ -6,64 +7,38 @@ const Result = () => {
 
   if (!state) {
     return (
-      <p className="text-center mt-10 text-gray-600">
-        No result data found.
-      </p>
+      <div className="p-5 text-center">
+        <p className="text-red-500">No result data found.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Go Home
+        </button>
+      </div>
     );
   }
 
-  const { score, total, percentage, answers, questions, examName, userName } = state;
+  const { score, total, percentage, questions, answers, examName } = state;
 
   return (
-    <div className="max-w-xl mx-auto mt-20 p-8 bg-white shadow-lg rounded-lg text-center">
-      <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Exam Completed!</h1>
+    <div className="max-w-3xl mx-auto p-5">
+      <h1 className="text-3xl font-bold text-center mb-4">{examName} - Results</h1>
+      <p className="text-xl text-center">Score: {score} / {total}</p>
+      <p className="text-lg text-center mb-4">Percentage: {percentage}%</p>
 
-      {examName && (
-        <p className="text-lg mb-2">
-          <strong>Exam:</strong> {examName}
-        </p>
-      )}
-
-      {userName && (
-        <p className="text-lg mb-2">
-          <strong>Student:</strong> {userName}
-        </p>
-      )}
-
-      <p className="text-xl mb-2">
-        You scored <span className="font-semibold">{score}</span> out of{" "}
-        <span className="font-semibold">{total}</span>
-      </p>
-
-      <p
-        className={`text-2xl font-bold ${
-          percentage >= 50 ? "text-green-700" : "text-red-600"
-        }`}
+      <button
+        onClick={() => navigate("/result-review", { state })}
+        className="bg-yellow-500 text-white px-4 py-2 rounded mt-3"
       >
-        {percentage}%
-      </p>
-
-      <div className="mt-8 flex justify-center gap-4">
-        <button
-          onClick={() => navigate("/")}
-          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
-        >
-          🏠 Go Home
-        </button>
-
-        {answers && questions && (
-          <button
-            onClick={() =>
-              navigate("/result-review", {
-                state: { answers, questions, score, total, percentage, examName, userName }
-              })
-            }
-            className="bg-yellow-500 text-white px-5 py-2 rounded hover:bg-yellow-600"
-          >
-            📝 Review Answers
-          </button>
-        )}
-      </div>
+        Review Answers
+      </button>
+      <button
+        onClick={() => navigate("/")}
+        className="bg-blue-600 text-white px-4 py-2 rounded mt-3 ml-3"
+      >
+        Back to Home
+      </button>
     </div>
   );
 };
